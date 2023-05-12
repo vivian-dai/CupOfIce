@@ -40,8 +40,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     class LinearAccelListener(textViewsA: Array<TextView>) : SensorEventListener {
-        lateinit var textViews: Array<TextView>;
-        lateinit var accels: FloatArray;
+        var textViews: Array<TextView>;
+        var accels: FloatArray;
 
         init {
             textViews = textViewsA;
@@ -59,7 +59,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
-            // yay
+            // yay do nothing
         }
     }
 
