@@ -30,8 +30,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume();
-//        sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL);
-        // ???? literally why does this not work when this is here
+        sensorManager.unregisterListener(listener);
+        sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     override fun onPause() {
@@ -59,7 +59,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
-            TODO("Not yet implemented")
             // yay
         }
     }
