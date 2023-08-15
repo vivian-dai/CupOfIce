@@ -6,37 +6,32 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+
     <TextView
-        android:id="@+id/x_text"
+        android:id="@+id/text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="x"
-        android:textSize="48dp"
-        app:layout_constraintBottom_toTopOf="@+id/y_text"
+        android:text=""
+        android:textSize="48sp"
+        app:layout_constraintBottom_toTopOf="@id/imageView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/y_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="y"
-        android:textSize="48dp"
-        app:layout_constraintBottom_toTopOf="@+id/z_text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/x_text" />
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:adjustViewBounds="true"
 
-    <TextView
-        android:id="@+id/z_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="z"
-        android:textSize="48dp"
+        android:contentDescription="@string/img_desc"
+
+        android:cropToPadding="true"
+        android:scaleType="centerInside"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/y_text" />
+        app:layout_constraintTop_toBottomOf="@id/text"
+        app:srcCompat="@drawable/bbt" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

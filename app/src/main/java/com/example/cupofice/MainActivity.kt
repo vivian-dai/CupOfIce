@@ -8,54 +8,51 @@ import android.hardware.SensorManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.TextView
+import kotlin.math.abs
 
 class MainActivity : AppCompatActivity() {
-    lateinit var sensorManager: SensorManager;
-    lateinit var sensor: Sensor;
+    private lateinit var sensorManager: SensorManager
+    private lateinit var sensor: Sensor
 
-    lateinit var listener: LinearAccelListener;
+    private lateinit var listener: LinearAccelListener
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager;
-        sensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        sensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
 
-        val textViewX = findViewById<TextView>(R.id.x_text);
-        val textViewY = findViewById<TextView>(R.id.y_text);
-        val textViewZ = findViewById<TextView>(R.id.z_text);
+        val textView = findViewById<TextView>(R.id.text)
 
-        listener = LinearAccelListener(arrayOf(textViewX, textViewY, textViewZ));
+        listener = LinearAccelListener(textView)
+        // TODO: load in 6 different sounds then play on shake
 
     }
 
     override fun onResume() {
-        super.onResume();
-        sensorManager.unregisterListener(listener);
-        sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+        super.onResume()
+        sensorManager.unregisterListener(listener)
+        sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL)
     }
 
     override fun onPause() {
         super.onPause()
-        sensorManager.unregisterListener(listener);
+        sensorManager.unregisterListener(listener)
     }
 
-    class LinearAccelListener(textViewsA: Array<TextView>) : SensorEventListener {
-        var textViews: Array<TextView>;
-        var accels: FloatArray;
+    class LinearAccelListener(textView: TextView) : SensorEventListener {
+        private var tView: TextView
+        private var accels: FloatArray = floatArrayOf(0F, 0F, 0F)
 
         init {
-            textViews = textViewsA;
-            accels = floatArrayOf(0F, 0F, 0F);
+            tView = textView
         }
 
         override fun onSensorChanged(event: SensorEvent) {
-            accels[0] = event.values[0];
-            accels[1] = event.values[1];
-            accels[2] = event.values[2];
+            accels[0] = event.values[0]
+            accels[1] = event.values[1]
+            accels[2] = event.values[2]
 
-            textViews[0].text = accels[0].toString();
-            textViews[1].text = accels[1].toString();
-            textViews[2].text = accels[2].toString();
+            tView.text = findPrimary(accels[0], accels[1], accels[2]).toString()
         }
 
         override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
@@ -63,4 +60,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+}
+
+fun findPrimary(a: Float, b: Float, c: Float): Int {
+    var ret: Int
+    if (abs(a) > abs(b) && abs(a) > abs(c)) {
+        ret = 1
+        if(a < 0) {
+            ret++
+        }
+    } else  if(abs(b) > abs(a) && abs(b) > abs(c)) {
+        ret = 3
+        if(b < 0) {
+            ret++
+        }
+    } else {
+        ret = 5
+        if (c < 0) {
+            ret++
+        }
+    }
+    return ret
 }
