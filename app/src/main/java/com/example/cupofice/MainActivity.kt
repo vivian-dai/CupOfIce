@@ -5,9 +5,12 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.media.AudioAttributes
+import android.media.SoundPool
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.TextView
+import android.widget.Toast
 import kotlin.math.abs
 
 class MainActivity : AppCompatActivity() {
@@ -15,6 +18,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var sensor: Sensor
 
     private lateinit var listener: LinearAccelListener
+    private lateinit var player: SoundPool
+
+    var sounds: IntArray = intArrayOf(0, 0, 0, 0, 0, 0)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -23,9 +30,38 @@ class MainActivity : AppCompatActivity() {
 
         val textView = findViewById<TextView>(R.id.text)
 
-        listener = LinearAccelListener(textView)
         // TODO: load in 6 different sounds then play on shake
+        player = SoundPool.Builder().setMaxStreams(6).setAudioAttributes(
+            AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build()
+        ).build()
 
+        sounds[0] = player.load(this@MainActivity, R.raw.shake1, 1)
+        sounds[1] = player.load(this, R.raw.shake2, 1)
+        sounds[2] = player.load(this, R.raw.shake3, 1)
+        sounds[3] = player.load(this, R.raw.shake4, 1)
+        sounds[4] = player.load(baseContext, R.raw.shake5, 1)
+        sounds[5] = player.load(baseContext, R.raw.shake6, 1)
+
+        val ok = player.load(this, R.raw.bruh, 1)
+
+        player.setOnLoadCompleteListener(object : SoundPool.OnLoadCompleteListener {
+            override fun onLoadComplete(player: SoundPool, sampleId: Int, status: Int) {
+                player.play(ok, 1F, 1F, 0, 0, 1F)
+                Toast.makeText(this@MainActivity, "Playing sound. . . .", Toast.LENGTH_SHORT).show()
+            }
+        })
+
+
+        listener = LinearAccelListener(textView, sounds, player)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        player.release()
+//        player = null
     }
 
     override fun onResume() {
@@ -39,12 +75,16 @@ class MainActivity : AppCompatActivity() {
         sensorManager.unregisterListener(listener)
     }
 
-    class LinearAccelListener(textView: TextView) : SensorEventListener {
+    class LinearAccelListener(textView: TextView, sArr: IntArray, p: SoundPool) : SensorEventListener {
         private var tView: TextView
         private var accels: FloatArray = floatArrayOf(0F, 0F, 0F)
+        private var pool: SoundPool
+        private var sounds: IntArray
 
         init {
             tView = textView
+            pool = p
+            sounds = sArr
         }
 
         override fun onSensorChanged(event: SensorEvent) {
@@ -52,11 +92,20 @@ class MainActivity : AppCompatActivity() {
             accels[1] = event.values[1]
             accels[2] = event.values[2]
 
+            val sound = findPrimary(accels[0], accels[1], accels[2])
+            playSound(sound)
+
             tView.text = findPrimary(accels[0], accels[1], accels[2]).toString()
+
         }
 
         override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
             // yay do nothing
+        }
+
+        fun playSound(sound: Int) {
+            pool.play(sounds[sound - 1], 1F, 1F, 0, 0, 1F)
+//            Toast.makeText(this@MainActivity, "Playing sound. . . .", Toast.LENGTH_SHORT).show()
         }
     }
 
