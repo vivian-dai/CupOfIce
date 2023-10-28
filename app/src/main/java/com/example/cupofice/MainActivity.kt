@@ -9,9 +9,10 @@ import android.media.AudioAttributes
 import android.media.SoundPool
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.TextView
-import android.widget.Toast
 import kotlin.math.abs
+import kotlin.math.min
 
 class MainActivity : AppCompatActivity() {
     private lateinit var sensorManager: SensorManager
@@ -45,23 +46,12 @@ class MainActivity : AppCompatActivity() {
         sounds[4] = player.load(baseContext, R.raw.shake5, 1)
         sounds[5] = player.load(baseContext, R.raw.shake6, 1)
 
-        val ok = player.load(this, R.raw.bruh, 1)
-
-        player.setOnLoadCompleteListener(object : SoundPool.OnLoadCompleteListener {
-            override fun onLoadComplete(player: SoundPool, sampleId: Int, status: Int) {
-                player.play(ok, 1F, 1F, 0, 0, 1F)
-                Toast.makeText(this@MainActivity, "Playing sound. . . .", Toast.LENGTH_SHORT).show()
-            }
-        })
-
-
         listener = LinearAccelListener(textView, sounds, player)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         player.release()
-//        player = null
     }
 
     override fun onResume() {
@@ -93,7 +83,12 @@ class MainActivity : AppCompatActivity() {
             accels[2] = event.values[2]
 
             val sound = findPrimary(accels[0], accels[1], accels[2])
-            playSound(sound)
+            val magnitude = findMagnitude(accels[0], accels[1], accels[2], sound)
+            if(magnitude > 1) {
+                val volume = min(magnitude/10, 1F)
+                playSound(sound, volume)
+                Log.i("Accelerations", accels[0].toString() + " " + accels[1].toString() + " " + accels[2].toString())
+            }
 
             tView.text = findPrimary(accels[0], accels[1], accels[2]).toString()
 
@@ -103,14 +98,22 @@ class MainActivity : AppCompatActivity() {
             // yay do nothing
         }
 
-        fun playSound(sound: Int) {
-            pool.play(sounds[sound - 1], 1F, 1F, 0, 0, 1F)
-//            Toast.makeText(this@MainActivity, "Playing sound. . . .", Toast.LENGTH_SHORT).show()
+        fun playSound(sound: Int, volume: Float) {
+            pool.play(sounds[sound - 1], volume, volume, 0, 0, 1F)
         }
     }
 
 }
 
+fun findMagnitude(a: Float, b: Float, c: Float, id: Int): Float {
+    return when (id) {
+        1 -> abs(a)
+        2 -> abs(a)
+        3 -> abs(b)
+        4 -> abs(b)
+        else -> abs(c)
+    }
+}
 fun findPrimary(a: Float, b: Float, c: Float): Int {
     var ret: Int
     if (abs(a) > abs(b) && abs(a) > abs(c)) {
