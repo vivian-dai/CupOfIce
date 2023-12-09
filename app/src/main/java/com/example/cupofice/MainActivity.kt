@@ -83,8 +83,8 @@ class MainActivity : AppCompatActivity() {
             accels[2] = event.values[2]
 
             val sound = findPrimary(accels[0], accels[1], accels[2])
-            val magnitude = findMagnitude(accels[0], accels[1], accels[2], sound)
-            if(magnitude > 1) {
+            val magnitude = findMagnitude(accels[0], accels[1], accels[2], sound) - 1
+            if(magnitude > 0) {
                 val volume = min(magnitude/10, 1F)
                 playSound(sound, volume)
                 Log.i("Accelerations", accels[0].toString() + " " + accels[1].toString() + " " + accels[2].toString())
